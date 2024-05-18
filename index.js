@@ -2,7 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const admin = require("firebase-admin");
-const serviceAccount = require("./serviceAccountKey.json"); // Update this path if necessary
+
+// Parse the JSON string from the environment variable
+const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -15,9 +17,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
-// Endpoint to add schedule
 app.post("/add-schedule", async (req, res) => {
   const { employeeName, schedule } = req.body;
   try {
@@ -31,7 +32,6 @@ app.post("/add-schedule", async (req, res) => {
   }
 });
 
-// Endpoint to get schedules
 app.get("/get-schedules", async (req, res) => {
   try {
     const schedulesSnapshot = await db.collection("schedules").get();
@@ -48,3 +48,5 @@ app.get("/get-schedules", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app; // Ensure to export the app for Vercel
