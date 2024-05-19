@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 5001;
 
-pp.post("/add-schedule", async (req, res) => {
+app.post("/add-schedule", async (req, res) => {
   const { employeeName, schedule, group } = req.body;
   try {
     await db.collection("schedules").add({
