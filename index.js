@@ -23,7 +23,8 @@ const PORT = process.env.PORT || 5001;
 app.post("/add-schedule", async (req, res) => {
   const { employeeName, schedule, group } = req.body;
   try {
-    await db.collection("schedules").add({
+    const scheduleRef = db.collection("schedules").doc();
+    await scheduleRef.set({
       employeeName,
       schedule,
       group,
