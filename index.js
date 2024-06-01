@@ -4,8 +4,8 @@ const cors = require("cors");
 const admin = require("firebase-admin");
 
 // Parse the JSON string from the environment variable
-const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-// const serviceAccount = require("./serviceAccountKey.json");
+// const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+const serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -32,6 +32,39 @@ app.post("/add-schedule", async (req, res) => {
     res.status(200).send("Schedule added");
   } catch (error) {
     res.status(500).send("Error adding schedule");
+  }
+});
+
+app.post("/submit-availability", async (req, res) => {
+  const { employeeId, employeeName, availability, group } = req.body;
+  try {
+    await db.collection("availability").add({
+      employeeId,
+      employeeName, // Store employee name
+      availability,
+      group,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    res.status(200).send("Availability submitted");
+  } catch (error) {
+    res.status(500).send("Error submitting availability");
+  }
+});
+
+app.get("/get-availability", async (req, res) => {
+  const group = req.query.group;
+  try {
+    const availabilitySnapshot = await db
+      .collection("availability")
+      .where("group", "==", group)
+      .get();
+    const availability = [];
+    availabilitySnapshot.forEach((doc) => {
+      availability.push({ id: doc.id, ...doc.data() });
+    });
+    res.status(200).send(availability);
+  } catch (error) {
+    res.status(500).send("Error getting availability");
   }
 });
 
