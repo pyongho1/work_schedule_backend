@@ -38,7 +38,7 @@ app.post("/add-schedule", async (req, res) => {
 app.post("/submit-availability", async (req, res) => {
   const { employeeId, employeeName, availability, group } = req.body;
   try {
-    await db.collection("availability").add({
+    await db.collection("availability").doc(employeeId).set({
       employeeId,
       employeeName, // Store employee name
       availability,
